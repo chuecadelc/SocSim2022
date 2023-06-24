@@ -1,0 +1,81 @@
+## Analysing the Random Distribution of SIMPE's model outputs (individual-level data)
+
+# Libraries
+
+require(ggplot2)
+require(tidyverse)
+require(stargazer)
+require(jtools)
+require(huxtable)
+require(officer)
+require(flextable)
+require(sandwich)
+require(latexpdf)
+require(tinytex)
+require(purrr)
+require(gridExtra)
+#require(dotwhisker)
+require(stargazer)
+#library(hrbrthemes)
+require(hexbin)
+require(reshape2)
+require(gtable)
+require(interactions)
+library(qwraps2)
+
+
+## Reading in the data ## 
+
+files <- list.files('~/CEO/attribs', 
+                     pattern = ".csv", recursive = TRUE, full.names = TRUE)
+
+attribsCEO <- do.call(rbind,
+                      lapply(files,
+                             read.csv))
+                             
+#ensuring data is in the right format
+
+str(attribsCEO)
+
+#summary(attribsCEO)
+
+#######################################
+
+######### Nat Id Dynamics ###########
+
+#######################################
+
+## Data wranggling 
+
+attribsCEO1 <- attribsCEO %>%
+  group_by(t,agent,networks,social_media)%>%
+  summarise(nat_id_mean = mean(nat_id)) 
+
+
+## Summary tables 
+a <- summary_table(attribsCEO1)
+print(xtable(attribsCEO1, type = "latex"), file = "summary_tab.tex") ## Nicer and cleaner table
+
+
+##########################################
+
+#### Linear plots for agent's nat.id  ####
+
+##########################################
+
+attribsCEO %>%
+    group_by(Networks,Social.Media,t,agent) %>%
+    summarize(nat_id_mean = mean(nat_id))%>%
+    mutate(
+    Networks = recode(Networks, `0` = "Random", `1` = "Homophilous"),
+    Social.Media = recode(Social.Media, `0` = "Filter Bubble Off", `1` = "Filter Bubble On")
+    ) %>%
+    ggplot(aes(t,nat_id_mean, group=agent)) + 
+    geom_line(alpha=0.04) +
+    facet_wrap(~Networks+Social.Media) +
+    labs(
+      title = "Dynamics of CEO 2011 Dist. National Identities",
+      y= "National identities", 
+      x = "time steps"  )
+
+
