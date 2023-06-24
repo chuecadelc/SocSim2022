@@ -73,7 +73,7 @@ stargazer(VarLM, Nat_ID_interact, title=" Variance of National Identity for Rand
 
 # Plotting the interaction between these two categorical variables
 
-fig <- coutputSSC1 %>%
+fig <- coutput1 %>%
   plot_ly(x = ~Social.Media, y = ~Networks, z = ~mean_var, type = "contour",
           width = 600, height = 500)
 layout(fig, showlegend = T, title = "Variance of National Identity for Random Dist. scenario")
