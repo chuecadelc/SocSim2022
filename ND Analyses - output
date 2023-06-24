@@ -1,0 +1,81 @@
+## Analysing the Normal Distribution model outputs (population-level data)
+
+# Libraries
+
+require(ggplot2)
+require(tidyverse)
+require(stargazer)
+require(jtools)
+require(huxtable)
+require(officer)
+require(flextable)
+require(sandwich)
+require(latexpdf)
+require(tinytex)
+require(purrr)
+require(gridExtra)
+require(hexbin)
+require(reshape2)
+require(gtable)
+require(interactions)
+require(RColorBrewer)
+require(viridis)
+
+## Reading in the data (individual files to be merged into one) ## 
+
+files <- list.files('~/ND_Experiments/output', 
+                    pattern = ".csv", recursive = TRUE, full.names = TRUE)
+output <- do.call(rbind,
+                        lapply(files,
+                               read.csv))
+                               
+#ensuring data is in the right format
+str(output)
+
+#summary(output)
+
+#######################################
+
+######### Nat Id. Dynamics ###########
+
+#######################################
+
+## Data wrangling ##
+
+#Combining the 4 vars into one, changing variable types and averaging across runs
+
+output1 <- output %>%
+  mutate(Networks = as.factor(Networks), Social.Media = as.factor(Social.Media)) %>%
+  group_by(Networks,Social.Media) %>%
+  summarize( mean_var = mean(Nat_ID_variance))
+
+summary(output1)
+
+#######################################
+
+######### LINEAR REGRESSIONS ##########
+
+#######################################
+
+### Variance Nat_ID 
+
+VarLM <- lm(mean_var ~ Networks + Social.Media , data = output1)
+
+#summary(VarLM)
+# Social Media x Networks
+
+Nat_ID_interact <- lm(mean_var ~ Social.Media * Networks , data = output1)
+
+#summary(Nat_ID_interact)
+
+stargazer(VarLM, Nat_ID_interact, title=" Variance of National Identity for Random Dist. scenario", align=TRUE)
+
+
+# Plotting the interaction between these two categorical variables
+
+fig <- coutputSSC1 %>%
+  plot_ly(x = ~Social.Media, y = ~Networks, z = ~mean_var, type = "contour",
+          width = 600, height = 500)
+layout(fig, showlegend = T, title = "Variance of National Identity for Random Dist. scenario")
+
+
