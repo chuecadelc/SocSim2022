@@ -49,7 +49,7 @@ str(attribs)
 
 attribs1 <- attribs %>%
   group_by(t,agent,networks,social_media)%>%
-  summarise(nat_id_mean = nat_id_mean) 
+  summarise(nat_id_mean = mean(nat_id)) 
 
 
 ## Summary tables 
@@ -63,21 +63,6 @@ print(xtable(attribs1, type = "latex"), file = "summary_tab.tex") ## Nicer and c
 
 ##########################################
 
-attribs1  %>%
-  mutate(time = as.numeric(time), agents = as.numeric(agents)) %>%
-  filter(rewiring == 0) %>%
-  #group_by(time,agents, nat_id_mean, networks,social_media)%>% # in case previous grouping didn't work correctly
-  ggplot(aes(time,nat_id_mean,group=agents)) + 
-  geom_line(alpha=0.04) +
-  facet_wrap(~networks+social_media) +
-  labs(
-    title = "Dynamics of Random Dist. National Identities",
-    y= "National identities", 
-    x = "time steps"  )
-
-
-## Individual changes of national identities ## 
-
 attribs %>%
     group_by(Networks,Social.Media,t,agent) %>%
     summarize(nat_id_mean = mean(nat_id), var= var(nat_id))%>%
@@ -85,11 +70,10 @@ attribs %>%
     Networks = recode(Networks, `0` = "Random", `1` = "Homophilous"),
     Social.Media = recode(Social.Media, `0` = "Filter Bubble Off", `1` = "Filter Bubble On")
     ) %>%
-    filter(probs.rewiring == 0) %>%
     ggplot(aes(t,nat_id_mean, group=agent)) + 
     geom_line(alpha=0.04) +
     facet_wrap(~Networks+Social.Media) +
     labs(
       title = "Dynamics of Random Dist. National Identities",
       y= "National identities", 
-      x = "time steps"  )
+      x = "time steps")
