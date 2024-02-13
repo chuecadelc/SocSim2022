@@ -22,6 +22,7 @@ require(reshape2)
 require(gtable)
 require(interactions)
 library(qwraps2)
+library(ineq)
 
 
 ## Reading in the data ## 
@@ -48,9 +49,15 @@ str(attribsCEO)
 ## Data wranggling 
 
 attribsCEO1 <- attribsCEO %>%
-  group_by(t,agent,networks,social_media)%>%
+  group_by(t,agent,Networks,Social.Media)%>%
   summarise(nat_id_mean = mean(nat_id)) 
 
+
+# obtaining the gini coefficient - inequality measure
+attribsCEO2 <- attribsCEO1 %>% 
+  mutate(nat_id_convert = nat_id_mean + 1) %>% 
+  group_by(Networks,Social.Media)%>%
+  summarise(gini_nat_id= ineq::Gini(nat_id_convert))
 
 ## Summary tables 
 a <- summary_table(attribsCEO1)
