@@ -45,9 +45,12 @@ str(output_CEO)
 #Combining the 4 vars into one, changing variable types and averaging across runs
 
 output_CEO1 <- output_CEO %>%
-  mutate(Networks = as.factor(Networks), Social.Media = as.factor(Social.Media)) %>%
+  mutate(Networks = as.factor(Networks), Social.Media = as.factor(Social.Media),
+  Networks = recode(Networks, `0` = "Random", `1` = "Homophilous"),
+  Social.Media = recode(Social.Media, `0` = "Filter Bubble Off", `1` ="Filter Bubble On")
+  ) %>%
   group_by(Networks,Social.Media) %>%
-  summarize( mean_var = mean(Nat_ID_variance))
+  summarize(mean_var = mean(Nat_ID_variance))
 
 summary(output_CEO1)
 
